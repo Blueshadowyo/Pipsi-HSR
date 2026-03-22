@@ -16,131 +16,150 @@ namespace ImGui
 
 	void BeginGroupPanel(const char* label, const ImVec2& size)
 	{
-		ImGuiContext& g = *GImGui;
-		ImGuiWindow* window = g.CurrentWindow;
+		ImGuiContext& G = *GImGui;
+		ImGuiWindow* Window = G.CurrentWindow;
 
-		const ImGuiID id = window->GetID(label);
-		ImGui::PushID(id);
+		const ImGuiID Id = Window->GetID(label);
 
-		const ImVec2 cursor_pos = window->DC.CursorPos;
-		const ImVec2 item_spacing = g.Style.ItemSpacing;
-		const float frame_height = ImGui::GetFrameHeight();
+		ImGui::PushID(Id);
 
-		ImGui::BeginGroup();
-
-		ImVec2 effective_size = size;
-		if (effective_size.x < 0.0f)
-			effective_size.x = ImGui::GetContentRegionAvail().x;
-
-		ImGui::Dummy(ImVec2(effective_size.x, 0.0f));
+		ImVec2 GroupPanelPos = Window->DC.CursorPos;
+		ImVec2 ItemSpacing = ImGui::GetStyle().ItemSpacing;
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 
-		ImGui::Dummy(ImVec2(frame_height * 0.5f, 0.0f));
+		ImGui::BeginGroup(); // Outer group
+
+		ImVec2 EffectiveSize = size;
+
+		if (size.x < 0.0f)
+			EffectiveSize.x = ImGui::GetContentRegionAvail().x;
+		else
+			EffectiveSize.x = size.x;
+
+		ImGui::Dummy(ImVec2(EffectiveSize.x, 0.0f)); // Adjusting group x size
+
+		float FrameHeight = ImGui::GetFrameHeight();
+
+		ImGui::Dummy(ImVec2(FrameHeight * 0.5f, 0.0f));
+
 		ImGui::SameLine(0.0f, 0.0f);
 
-		ImGui::BeginGroup();
+		ImGui::BeginGroup(); // Inner group
 
-		ImGui::Dummy(ImVec2(frame_height * 0.5f, 0.0f));
+		ImGui::Dummy(ImVec2(FrameHeight * 0.5f, 0.0f));
+
 		ImGui::SameLine(0.0f, 0.0f);
+
 		ImGui::TextUnformatted(label);
 
-		ImRect left_rect = ImRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
-
-		const ImVec2 right_max = ImVec2(cursor_pos.x + effective_size.x - frame_height * 0.5f, left_rect.Max.y);
-		ImRect right_rect = ImRect(ImVec2(right_max.x, left_rect.Min.y), right_max);
+		ImRect LeftRect = { ImGui::GetItemRectMin(), ImGui::GetItemRectMax() };
+		ImVec2 RightMax = ImVec2(GroupPanelPos.x + EffectiveSize.x - FrameHeight, LeftRect.Max.y);
+		ImRect RightRect = { { RightMax.x, LeftRect.Min.x }, RightMax };
 
 		ImGui::SameLine(0.0f, 0.0f);
-		ImGui::Dummy(ImVec2(0.0f, frame_height + item_spacing.y));
 
-		ImGui::EndGroup();
+		ImGui::Dummy(ImVec2(0.0, FrameHeight + ItemSpacing.y));
+
 		ImGui::PopStyleVar(2);
 
-		const float side_padding = frame_height * 0.5f;
-		window->ContentRegionRect.Max.x -= side_padding;
-		window->WorkRect.Max.x -= side_padding;
-		window->InnerRect.Max.x -= side_padding;
-		window->Size.x -= side_padding;
+		ImGui::GetCurrentWindow()->ContentRegionRect.Max.x -= FrameHeight * 0.5f;
+		ImGui::GetCurrentWindow()->WorkRect.Max.x -= FrameHeight * 0.5f;
+		ImGui::GetCurrentWindow()->InnerRect.Max.x -= FrameHeight * 0.5f;
+		ImGui::GetCurrentWindow()->Size.x -= FrameHeight;
 
-		ImGui::PushItemWidth(ImMax(0.0f, ImGui::CalcItemWidth() - side_padding));
+		float ItemWidth = ImGui::CalcItemWidth();
 
-		GroupPanelStack.push_back({ left_rect, right_rect });
+		ImGui::PushItemWidth(ImMax(0.0f, ItemWidth - FrameHeight));
+
+		GroupPanelStack.push_back({ LeftRect, RightRect });
+
+		ImGui::Indent(7.0f * ImGui::GetStyle().FontScaleDpi);
 	}
 
-	void EndGroupPanel()
+	void ImGui::EndGroupPanel()
 	{
-		ImGuiContext& g = *GImGui;
+		ImGui::Unindent(7.0f * ImGui::GetStyle().FontScaleDpi);
 
-		GroupPanelHeaderBounds& header = GroupPanelStack.back();
+		GroupPanelHeaderBounds& Info = GroupPanelStack.back();
+
 		GroupPanelStack.pop_back();
 
 		ImGui::PopItemWidth();
 
-		const float side_padding = ImGui::GetFrameHeight() * 0.5f;
-		ImGuiWindow* window = g.CurrentWindow;
-		window->ContentRegionRect.Max.x += side_padding;
-		window->WorkRect.Max.x += side_padding;
-		window->InnerRect.Max.x += side_padding;
-		window->Size.x += side_padding;
+		ImVec2& ItemSpacing = ImGui::GetStyle().ItemSpacing;
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 
-		ImGui::EndGroup();
+		ImGui::EndGroup(); // Inner group
 
-		const float frame_height = ImGui::GetFrameHeight();
-		const ImVec2 item_spacing = g.Style.ItemSpacing;
+		float FrameHeight = ImGui::GetFrameHeight();
 
 		ImGui::SameLine(0.0f, 0.0f);
-		ImGui::Dummy(ImVec2(frame_height * 0.5f, 0.0f));
-		ImGui::Dummy(ImVec2(0.0f, frame_height * 0.5f - item_spacing.y));
+
+		ImGui::Dummy(ImVec2(FrameHeight * 0.5f, 0.0f));
+		ImGui::Dummy(ImVec2(0.0, FrameHeight - FrameHeight * 0.5f - ItemSpacing.y));
 
 		ImGui::EndGroup();
 
-		ImVec2 item_min = ImGui::GetItemRectMin();
-		ImVec2 item_max = ImGui::GetItemRectMax();
+		ImVec2 ItemMin = ImGui::GetItemRectMin();
+		ImVec2 ItemMax = ImGui::GetItemRectMax();
 
-		const ImVec2 half_frame = ImVec2(frame_height * 0.25f, frame_height * 0.5f);
-		ImRect frame_rect(item_min + half_frame, item_max - ImVec2(half_frame.x, 0.0f));
+		ImVec2 HalfFrame = ImVec2(FrameHeight * 0.25f, FrameHeight) * 0.5f;
+		ImRect FrameRect = ImRect(ItemMin + HalfFrame, ItemMax - ImVec2(HalfFrame.x, 0.0f));
 
-		header.Left.Min.x -= item_spacing.x;
-		header.Left.Max.x += item_spacing.x;
+		ImRect& LeftRect = Info.Left;
 
-		const bool has_right_part = (header.Right.Min.x != header.Right.Max.x);
-		if (has_right_part)
+		LeftRect.Min.x -= ItemSpacing.x;
+		LeftRect.Max.x += ItemSpacing.x;
+
+		bool HasRightPart = Info.Right.Min.x != Info.Right.Max.x;
+
+		ImRect& RightRect = Info.Right;
+
+		if (HasRightPart)
 		{
-			header.Right.Min.x -= item_spacing.x;
-			header.Right.Max.x += item_spacing.x;
+			RightRect.Min.x -= ItemSpacing.x;
+			RightRect.Max.x += ItemSpacing.x;
 		}
 
-		ImDrawList* draw_list = window->DrawList;
-		const ImU32 border_color = ImGui::GetColorU32(ImGuiCol_Border);
-
-		ImGui::PushClipRect(ImVec2(-FLT_MAX, -FLT_MAX), ImVec2(header.Left.Min.x, FLT_MAX), true);
-		draw_list->AddRect(frame_rect.Min, frame_rect.Max, border_color, half_frame.x);
-		ImGui::PopClipRect();
-
-		ImGui::PushClipRect(ImVec2(header.Left.Max.x, -FLT_MAX), ImVec2(has_right_part ? header.Right.Min.x : FLT_MAX, FLT_MAX), true);
-		draw_list->AddRect(frame_rect.Min, frame_rect.Max, border_color, half_frame.x);
-		ImGui::PopClipRect();
-
-		ImGui::PushClipRect(ImVec2(header.Left.Min.x, header.Left.Max.y), ImVec2(header.Left.Max.x, FLT_MAX), true);
-		draw_list->AddRect(frame_rect.Min, frame_rect.Max, border_color, half_frame.x);
-		ImGui::PopClipRect();
-
-		if (has_right_part)
+		for (int i = 0; i < (HasRightPart ? 5 : 3); ++i)
 		{
-			ImGui::PushClipRect(ImVec2(header.Right.Min.x, header.Right.Max.y), ImVec2(header.Right.Max.x, FLT_MAX), true);
-			draw_list->AddRect(frame_rect.Min, frame_rect.Max, border_color, half_frame.x);
-			ImGui::PopClipRect();
+			switch (i)
+			{
+			case 0:
+				ImGui::PushClipRect(ImVec2(-FLT_MAX, -FLT_MAX), ImVec2(LeftRect.Min.x, FLT_MAX), TRUE);
+				break;
+			case 1:
+				ImGui::PushClipRect(ImVec2(LeftRect.Max.x, -FLT_MAX), ImVec2(HasRightPart ? RightRect.Min.x : FLT_MAX, FLT_MAX), TRUE);
+				break;
+			case 2:
+				ImGui::PushClipRect(ImVec2(LeftRect.Min.x, LeftRect.Max.y), ImVec2(LeftRect.Max.x, FLT_MAX), TRUE);
+				break;
+			case 3:
+				ImGui::PushClipRect(ImVec2(RightRect.Min.x, RightRect.Max.y), ImVec2(RightRect.Max.x, FLT_MAX), TRUE);
+				break;
+			case 4:
+				ImGui::PushClipRect(ImVec2(RightRect.Max.x, -FLT_MAX), ImVec2(FLT_MAX, FLT_MAX), TRUE);
+				break;
+			}
 
-			ImGui::PushClipRect(ImVec2(header.Right.Max.x, -FLT_MAX), ImVec2(FLT_MAX, FLT_MAX), true);
-			draw_list->AddRect(frame_rect.Min, frame_rect.Max, border_color, half_frame.x);
+			ImGui::GetWindowDrawList()->AddRect(FrameRect.Min, FrameRect.Max, ImColor(ImGui::GetStyleColorVec4(ImGuiCol_Border)), HalfFrame.x);
+
 			ImGui::PopClipRect();
 		}
 
 		ImGui::PopStyleVar(2);
+
+		ImGui::GetCurrentWindow()->ContentRegionRect.Max.x += FrameHeight * 0.5f;
+		ImGui::GetCurrentWindow()->WorkRect.Max.x += FrameHeight * 0.5f;
+		ImGui::GetCurrentWindow()->InnerRect.Max.x += FrameHeight * 0.5f;
+		ImGui::GetCurrentWindow()->Size.x += FrameHeight;
+
+		ImGui::Dummy(ImVec2(0.0f, 0.0f));
+
 		ImGui::PopID();
 	}
 

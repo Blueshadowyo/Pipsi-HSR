@@ -16,6 +16,7 @@
 #include "unitysdk/RPG/GameCore/BattleInstance.h"
 #include "unitysdk/RPG/GameCore/EntityManager.h"
 #include "unitysdk/RPG/GameCore/GameEntity.h"
+#include "unitysdk/RPG/GameCore/GameEntity_GameComponentList.h"
 #include "unitysdk/RPG/GameCore/GameWorld.h"
 #include "unitysdk/RPG/GameCore/NPCComponent.h"
 #include "unitysdk/RPG/GameCore/StatisticsComponent.h"

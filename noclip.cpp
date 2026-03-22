@@ -71,7 +71,7 @@ namespace Noclip
 				Speed *= 3.0f;
 			}
 
-			PlayerTransform->set_position(Direction * Speed * UnityEngine::Time::get_deltaTime());
+			PlayerTransform->set_position(Position + Direction * Speed * UnityEngine::Time::get_deltaTime());
 		}
 	}
 

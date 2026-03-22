@@ -69,52 +69,57 @@ namespace Menu
 
 	static void OnFrame()
 	{
-		if (Input::IsKeyToggled(Options.MenuKey))
+		if (hIl2Cpp)
 		{
-			if (ImGui::Begin("Pipsi-HSR | " __DATE__ " | https://discord.gg/tPKFCs4VbB | IF YOU BOUGHT THIS, YOU GOT SCAMMED"))
+			if (Input::IsKeyToggled(Options.MenuKey))
 			{
-				if (ImGui::BeginListBox("##MenuTabs", ImVec2(ImGui::GetWindowWidth() / 5.0f, -FLT_MIN)))
+				if (ImGui::Begin("Pipsi-HSR | " __DATE__ " | https://discord.gg/tPKFCs4VbB | IF YOU BOUGHT THIS, YOU GOT SCAMMED"))
 				{
-					for (int i = 0; i < IM_ARRAYSIZE(TabNames); i++)
+					if (ImGui::BeginListBox("##MenuTabs", ImVec2(ImGui::GetWindowWidth() / 5.0f, -FLT_MIN)))
 					{
-						if (ImGui::Selectable(TabNames[i], CurrentTab == i))
+						for (int i = 0; i < IM_ARRAYSIZE(TabNames); i++)
 						{
-							CurrentTab = i;
+							if (ImGui::Selectable(TabNames[i], CurrentTab == i))
+							{
+								CurrentTab = i;
+							}
+						}
+
+						ImGui::EndListBox();
+					}
+
+					ImGui::SameLine();
+
+
+					if (ImGui::BeginChild("##MenuTabContent", ImVec2(0.0f, -FLT_MIN), ImGuiChildFlags_Borders))
+					{
+						switch (CurrentTab)
+						{
+						case 0:
+							Cheat::MenuAdventure();
+							break;
+						case 1:
+							Cheat::MenuBattle();
+							break;
+						case 2:
+							Cheat::MenuVisuals();
+							break;
+						case 3:
+							Cheat::MenuMisc();
+							break;
+						default:
+							break;
 						}
 					}
 
-					ImGui::EndListBox();
+					ImGui::EndChild();
 				}
 
-				ImGui::SameLine();
-
-
-				if (ImGui::BeginChild("##MenuTabContent", ImVec2(0.0f, -FLT_MIN), ImGuiChildFlags_Borders))
-				{
-					switch (CurrentTab)
-					{
-					case 0:
-						Cheat::MenuAdventure();
-						break;
-					case 1:
-						Cheat::MenuBattle();
-						break;
-					case 2:
-						Cheat::MenuVisuals();
-						break;
-					case 3:
-						Cheat::MenuMisc();
-						break;
-					default:
-						break;
-					}
-				}
-
-				ImGui::EndChild();
+				ImGui::End();
 			}
-		}
 
-		Cheat::OnFrame();
+			Cheat::OnFrame();
+		}
 	}
 
 	bool Setup()

@@ -389,70 +389,6 @@ namespace D3D11_Overlay
 		return hResult;
 	}
 
-	static DWORD ThreadRoutine(LPVOID lpParameter)
-	{
-		WNDCLASSEXW WndClass = {};
-
-		WndClass.cbSize = sizeof(WndClass);
-		WndClass.style = CS_CLASSDC;
-		WndClass.lpfnWndProc = WndProc;
-		WndClass.hInstance = GetModuleHandleW(NULL);
-		WndClass.lpszClassName = L"Temp Window Class";
-
-		RegisterClassExW(&WndClass);
-
-		HWND hWnd = CreateWindowExW(0, WndClass.lpszClassName, L"Temp Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 100, 100, NULL, NULL, WndClass.hInstance, NULL);
-
-		UINT CreateDeviceFlags = 0;
-		D3D_FEATURE_LEVEL FeatureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0 };
-
-		DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
-
-		SwapChainDesc.BufferCount = 2;
-		SwapChainDesc.BufferDesc.Width = 0;
-		SwapChainDesc.BufferDesc.Height = 0;
-		SwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		SwapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-		SwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-		SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-		SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		SwapChainDesc.OutputWindow = hWnd;
-		SwapChainDesc.SampleDesc.Count = 1;
-		SwapChainDesc.SampleDesc.Quality = 0;
-		SwapChainDesc.Windowed = TRUE;
-		SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-
-		IDXGISwapChain* SwapChain = NULL;
-		ID3D11Device* Device = NULL;
-		D3D_FEATURE_LEVEL FeatureLevel;
-		ID3D11DeviceContext* DeviceContext = NULL;
-
-		if (D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, CreateDeviceFlags, FeatureLevelArray, 2, D3D11_SDK_VERSION, &SwapChainDesc, &SwapChain, &Device, &FeatureLevel, &DeviceContext) == DXGI_ERROR_UNSUPPORTED)
-		{
-			D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_WARP, NULL, CreateDeviceFlags, FeatureLevelArray, 2, D3D11_SDK_VERSION, &SwapChainDesc, &SwapChain, &Device, &FeatureLevel, &DeviceContext);
-		}
-
-		if (SwapChain)
-		{
-			SwapChain->Release();
-		}
-
-		if (Device)
-		{
-			Device->Release();
-		}
-
-		if (DeviceContext)
-		{
-			DeviceContext->Release();
-		}
-
-		DestroyWindow(hWnd);
-		UnregisterClassW(WndClass.lpszClassName, WndClass.hInstance);
-
-		return 0;
-	}
-
 	bool Setup(D3D11_OVERLAY_ON_WNDPROC_CALLBACK OnWndProc, D3D11_OVERLAY_BEFORE_FRAME_CALLBACK BeforeFrame, D3D11_OVERLAY_ON_FRAME_CALLBACK OnFrame)
 	{
 		{
@@ -497,18 +433,6 @@ namespace D3D11_Overlay
 			{
 				return FALSE;
 			}
-		}
-
-		/* not needed if you inject before creating the device, but just in case */
-		{
-			HANDLE hThread = CreateThread(NULL, 0, ThreadRoutine, NULL, 0, NULL);
-
-			if (hThread == INVALID_HANDLE_VALUE)
-			{
-				return FALSE;
-			}
-
-			CloseHandle(hThread);
 		}
 
 		return TRUE;

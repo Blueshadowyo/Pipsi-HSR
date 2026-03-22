@@ -33,21 +33,21 @@ struct OPTIONS
 	bool Noclip = FALSE;
 	unsigned char NoclipKey = 0;
 	bool NoclipKeyHeld = FALSE;
-	float NoclipSpeed = 1.0f;
+	float NoclipSpeed = 15.0f;
 	bool NoclipUseCameraDirection = FALSE;
 
 	bool FreeCamera = FALSE;
 	unsigned char FreeCameraKey = 0;
 	bool FreeCameraKeyHeld = FALSE;
-	float FreeCameraSpeed = 1.0f;
+	float FreeCameraSpeed = 15.0f;
 	float FreeCameraMouseSensitivity = 1.0f;
-	unsigned char FreeCameraUpKey = 0;
-	unsigned char FreeCameraDownKey = 0;
-	unsigned char FreeCameraForwardKey = 0;
-	unsigned char FreeCameraBackwardKey = 0;
-	unsigned char FreeCameraLeftKey = 0;
-	unsigned char FreeCameraRightKey = 0;
-	unsigned char FreeCameraBoostKey = 0;
+	unsigned char FreeCameraForwardKey = 'W';
+	unsigned char FreeCameraBackwardKey = 'S';
+	unsigned char FreeCameraLeftKey = 'A';
+	unsigned char FreeCameraRightKey = 'D';
+	unsigned char FreeCameraUpKey = VK_SPACE;
+	unsigned char FreeCameraDownKey = VK_CONTROL;
+	unsigned char FreeCameraBoostKey = VK_SHIFT;
 
 	bool Peeking = FALSE;
 
